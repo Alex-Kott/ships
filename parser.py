@@ -63,8 +63,16 @@ for imo in imos:
 	header = []
 	header.append("Название")
 	line['Название'] = name
+	header.append("Владелец")
+	owner = page.find(id="ri_owner")
+	try:
+		line['Владелец'] = owner.h3.contents[0]
+	except:
+		line['Владелец'] = ''
+
 	sheets = page.find_all(class_="infosheet")
 	for sheet in sheets:
+
 		for li in sheet.findAll("li"):
 			spans = li.findAll("span")
 			field = str(spans[0].contents[0])
@@ -74,8 +82,24 @@ for imo in imos:
 				if len(str(spans[1].contents[0])) > 3:
 					line[field] = str(spans[1].contents[0])
 			except:
-				if line.get(field) == None:
-					line[field] = ' '
+				if field == "Сайт":
+					try:
+						st = li.findAll("a")[0]['href']
+					except:
+						st = '-'
+					line[field] = str(st)
+				if field == 'E-Mail':
+					try:
+						em = str(page.find_all(class_="email-address")[0])
+						em = em.replace('<span class="email-address">', '')
+						em = em.replace('</span>', '')
+						em = em.replace('<i class="_d">a</i>', '')
+					except:
+						em = '-'
+					line[field] = str(em)
+				else:
+					if line.get(field) == None:
+						line[field] = ' '
 	
 	if flag == 0:
 		with open("result.csv", 'a') as f:
