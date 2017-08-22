@@ -9,7 +9,7 @@ import time
 options = webdriver.ChromeOptions()
 options.add_argument("--start-maximized")
 
-driver = webdriver.Chrome("/home/alexkott/Documents/YouDo/shop-parsing/selenium_test/chromedriver", chrome_options=options)
+driver = webdriver.Chrome("/home/alexkott/Documents/YouDo/ships/chromedriver/chromedriver", chrome_options=options)
 driver.get("http://www.shippingexplorer.net/ru/")
 driver.find_element_by_class_name("userlogin").click()
 driver.find_element_by_id("UsernameOrEMail").send_keys("alexey.kott@gmail.com")
@@ -22,7 +22,6 @@ site = "http://www.shippingexplorer.net{}"
 workbook = xlrd.open_workbook("imo.xlsx")
 sheet = workbook.sheet_by_index(0)
 
-header = []
 flag = 0 # для заголовка
 
 l = 0
@@ -61,6 +60,7 @@ for imo in imos:
 	name = name.strip()
 
 	line = dict()
+	header = []
 	header.append("Название")
 	line['Название'] = name
 	sheets = page.find_all(class_="infosheet")
@@ -68,12 +68,14 @@ for imo in imos:
 		for li in sheet.findAll("li"):
 			spans = li.findAll("span")
 			field = str(spans[0].contents[0])
-			if flag == 0:
+			if field not in header:
 				header.append(field)
 			try:
-				line[field] = str(spans[1].contents[0])
+				if len(str(spans[1].contents[0])) > 3:
+					line[field] = str(spans[1].contents[0])
 			except:
-				line[field] = ' '
+				if line.get(field) == None:
+					line[field] = ' '
 	
 	if flag == 0:
 		with open("result.csv", 'a') as f:
@@ -104,3 +106,4 @@ for imo in imos:
 	time.sleep(1)
 driver.close()
 	
+# 493 : 9358345
